@@ -29,7 +29,7 @@ def calc_hale():
     A function that extrapolates 2019 Health Adjusted Life Expectancy (HALE) from 2007 and 2016 HALE data and Life Expectancy 2016 and 2019 data.
     """
     
-    hale_2007_data = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\HALE.csv')
+    hale_2007_data = pd.read_csv(r'\HALE.csv')
     hale_2016 = {
                  'Males age 0 2016': 71.7, 
                  'Females age 0 2016': 74.1,
@@ -93,7 +93,7 @@ def calc_hospitalized():
     growth_factor = geo_mean(l)
     #The Growth factor equals to the geometric mean of 2015-2018 growth rate in discharges from curative care, according to the OECD.
     
-    hos = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\Hospitalized 2015 (Thousands).csv')
+    hos = pd.read_csv(r'\Hospitalized 2015 (Thousands).csv')
     hos_2020 = pd.DataFrame(columns = ['Age min', 'Age max', 'Males', 'Females', 'Deaths Males', 'Deaths Females'])
     hos_2020['Age min'] = hos['Age min']
     hos_2020['Age max'] = hos['Age max']
@@ -134,7 +134,7 @@ def calc_corona_qaly(co_morbidity_factor = 1):
     A function that calculates the average Quality Adjusted Life Years (QALY) lost of a COVID 19 death.
     """
     
-    deaths = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\Corona Deaths.csv')
+    deaths = pd.read_csv(r'\Corona Deaths.csv')
     corona_hale = calc_hale() 
     #Reading the deaths report and calculating Health Adjusted Life Expectancy (HALE) to use later. 
     
@@ -191,7 +191,7 @@ def main(ifr_scenario = 0, qaly_value_multiplier = 3, herd_immunity_threshold = 
     0.7 means that a lockdown prevents 70% of the deaths during the infection period.
     """
     
-    df_population = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\Israel Population 2018.csv', thousands = ',', index_col = 'Age')
+    df_population = pd.read_csv(r'\Israel Population 2018.csv', thousands = ',', index_col = 'Age')
     """
     Source:
     https://www.cbs.gov.il/he/publications/LochutTlushim/2020/%D7%90%D7%95%D7%9B%D7%9C%D7%95%D7%A1%D7%99%D7%99%D7%942019-2011.xlsx
@@ -212,7 +212,7 @@ def main(ifr_scenario = 0, qaly_value_multiplier = 3, herd_immunity_threshold = 
     
     papers = ['Levin', 'Verity', 'ODriscoll']
     for paper in papers:
-        df_ifr = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\IFR ' + paper + ' et al.csv')
+        df_ifr = pd.read_csv(r'\IFR ' + paper + ' et al.csv')
         ifr.append(calc_ifr(df_ifr, df_population, old_defence_low = old_defence_low, old_defence_high = old_defence_high, old_defence_factor = old_defence_factor)/100)
     #Calculating Age Adjusted Infected Fatality Rate according to Levin et al, Verity et al and O'Driscoll et al.
     
