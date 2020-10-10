@@ -216,7 +216,7 @@ def main(ifr_scenario = 0, qaly_value_multiplier = 3, herd_immunity_threshold = 
         ifr.append(calc_ifr(df_ifr, df_population, old_defence_low = old_defence_low, old_defence_high = old_defence_high, old_defence_factor = old_defence_factor)/100)
     #Calculating Age Adjusted Infected Fatality Rate according to Levin et al, Verity et al and O'Driscoll et al.
     
-    dead = calc_dead(df_population["Population"], ifr[ifr_scenario], herd_immunity_threshold)* lockdown_prevention_factor
+    dead = calc_dead(df_population["Population"], ifr[ifr_scenario], herd_immunity_threshold) * lockdown_prevention_factor
     #Calculating COVID 19 casualties.
     
     qaly_lost_covid = calc_corona_qaly(co_morbidity_factor = corona_co_mo_fa) * dead
