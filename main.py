@@ -207,16 +207,12 @@ def main(ifr_scenario = 0, qaly_value_multiplier = 3, herd_immunity_threshold = 
     
     qaly_value =  gdp_per_capita * qaly_value_multiplier
     
-    ifr = [] 
-    #An empty list variable to contain the Age Adjusted Infected Fatality Rate by the different papers.
-    
     papers = ['Levin', 'Verity', 'ODriscoll']
-    for paper in papers:
-        df_ifr = pd.read_csv(r'\IFR ' + paper + ' et al.csv')
-        ifr.append(calc_ifr(df_ifr, df_population, old_defence_low = old_defence_low, old_defence_high = old_defence_high, old_defence_factor = old_defence_factor)/100)
+    df_ifr = pd.read_csv(r'\IFR ' + papers[ifr_scenario] + ' et al.csv')
+    ifr = calc_ifr(df_ifr, df_population, old_defence_low = old_defence_low, old_defence_high = old_defence_high, old_defence_factor = old_defence_factor)/100
     #Calculating Age Adjusted Infected Fatality Rate according to Levin et al, Verity et al and O'Driscoll et al.
     
-    dead = calc_dead(df_population["Population"], ifr[ifr_scenario], herd_immunity_threshold) * lockdown_prevention_factor
+    dead = calc_dead(df_population["Population"], ifr, herd_immunity_threshold) * lockdown_prevention_factor
     #Calculating COVID 19 casualties.
     
     qaly_lost_covid = calc_corona_qaly(co_morbidity_factor = corona_co_mo_fa) * dead
