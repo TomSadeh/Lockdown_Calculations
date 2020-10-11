@@ -207,7 +207,7 @@ def main(ifr_scenario = 0, qaly_value_multiplier = 3, herd_immunity_threshold = 
     
     qaly_value =  gdp_per_capita * qaly_value_multiplier
     
-    papers = ['Levin', 'Verity', 'ODriscoll']
+    papers = ['ODriscoll', 'Verity', 'Levin']
     df_ifr = pd.read_csv(r'\IFR ' + papers[ifr_scenario] + ' et al.csv')
     ifr = calc_ifr(df_ifr, df_population, old_defence_low = old_defence_low, old_defence_high = old_defence_high, old_defence_factor = old_defence_factor)/100
     #Calculating Age Adjusted Infected Fatality Rate according to Levin et al, Verity et al and O'Driscoll et al.
