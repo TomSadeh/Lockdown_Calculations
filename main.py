@@ -29,7 +29,7 @@ def calc_hale():
     A function that extrapolates 2019 Health Adjusted Life Expectancy (HALE) from 2007 and 2016 HALE data and Life Expectancy 2016 and 2019 data.
     """
     
-    hale_2007_data = pd.read_csv(r'\HALE.csv')
+    hale_2007_data = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\HALE.csv')
     hale_2016 = {
                  'Males age 0 2016': 71.7, 
                  'Females age 0 2016': 74.1,
@@ -93,7 +93,7 @@ def calc_hospitalized():
     growth_factor = geo_mean(l)
     #The Growth factor equals to the geometric mean of 2015-2018 growth rate in discharges from curative care, according to the OECD.
     
-    hos = pd.read_csv(r'\Hospitalized 2015 (Thousands).csv')
+    hos = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\Hospitalized 2015 (Thousands).csv')
     hos_2020 = pd.DataFrame(columns = ['Age min', 'Age max', 'Males', 'Females', 'Deaths Males', 'Deaths Females'])
     hos_2020['Age min'] = hos['Age min']
     hos_2020['Age max'] = hos['Age max']
@@ -127,14 +127,17 @@ def calc_hospitalized_qaly(hos, hale, co_morbidity_factor = 1):
     
     males_total = hos['Males'] * hos['Males QALY'] * hos['Deaths Males']
     females_total = hos['Females'] * hos['Females QALY'] * hos["Deaths Females"]
-    return np.sum(males_total + females_total) * co_morbidity_factor
+    results_deaths = np.sum(hos['Males'] * hos['Deaths Males'] + hos['Females'] * hos["Deaths Females"])
+    results_qaly = np.sum(males_total + females_total) * co_morbidity_factor
+    l = [results_qaly, results_deaths]
+    return l
     
 def calc_corona_qaly(co_morbidity_factor = 1):
     """
     A function that calculates the average Quality Adjusted Life Years (QALY) lost of a COVID 19 death.
     """
     
-    deaths = pd.read_csv(r'\Corona Deaths.csv')
+    deaths = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\Corona Deaths.csv')
     corona_hale = calc_hale() 
     #Reading the deaths report and calculating Health Adjusted Life Expectancy (HALE) to use later. 
     
@@ -159,9 +162,9 @@ def calc_dead(pop, ifr, hit):
     
     return np.sum(pop) * ifr * hit
 
-def main(ifr_scenario = 0, qaly_value_multiplier = 3, herd_immunity_threshold = 0.5,
-         old_defence_factor = 0.75, old_defence_low = 65, old_defence_high = 120, corona_co_mo_fa = 0.7,
-         hospitalized_co_mo_fa = 0.7, healthcare_collapse_factor = 0.4, lockdown_prevention_factor = 0.7):
+def main(ifr_scenario = 1, qaly_value_multiplier = 3, herd_immunity_threshold = 0.5,
+         old_defence_factor = 0.75, old_defence_low = 65, old_defence_high = 120, corona_co_mo_fa = 0.75,
+         hospitalized_co_mo_fa = 0.75, healthcare_collapse_factor = 0.4, lockdown_prevention_factor = 0.7):
     """
     The bloody main function.
     
@@ -191,7 +194,7 @@ def main(ifr_scenario = 0, qaly_value_multiplier = 3, herd_immunity_threshold = 
     0.7 means that a lockdown prevents 70% of the deaths during the infection period.
     """
     
-    df_population = pd.read_csv(r'\Israel Population 2018.csv', thousands = ',', index_col = 'Age')
+    df_population = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\Israel Population 2018.csv', thousands = ',', index_col = 'Age')
     """
     Source:
     https://www.cbs.gov.il/he/publications/LochutTlushim/2020/%D7%90%D7%95%D7%9B%D7%9C%D7%95%D7%A1%D7%99%D7%99%D7%942019-2011.xlsx
@@ -208,23 +211,23 @@ def main(ifr_scenario = 0, qaly_value_multiplier = 3, herd_immunity_threshold = 
     qaly_value =  gdp_per_capita * qaly_value_multiplier
     
     papers = ['ODriscoll', 'Verity', 'Levin']
-    df_ifr = pd.read_csv(r'\IFR ' + papers[ifr_scenario] + ' et al.csv')
+    df_ifr = pd.read_csv(r'C:\Users\User\Documents\Projects\Kohelet-Midaat\IFR ' + papers[ifr_scenario] + ' et al.csv')
     ifr = calc_ifr(df_ifr, df_population, old_defence_low = old_defence_low, old_defence_high = old_defence_high, old_defence_factor = old_defence_factor)/100
     #Calculating Age Adjusted Infected Fatality Rate according to Levin et al, Verity et al and O'Driscoll et al.
     
-    dead = calc_dead(df_population["Population"], ifr, herd_immunity_threshold) * lockdown_prevention_factor
+    dead = calc_dead(df_population["Population"], ifr * (1 + healthcare_collapse_factor), herd_immunity_threshold) * lockdown_prevention_factor
     #Calculating COVID 19 casualties.
     
     qaly_lost_covid = calc_corona_qaly(co_morbidity_factor = corona_co_mo_fa) * dead
     #Calculating QALY lost due COVID 19 Deaths.
     
-    qaly_lost_hospitalized = calc_hospitalized_qaly(calc_hospitalized(), calc_hale(), hospitalized_co_mo_fa) * healthcare_collapse_factor
+    lost_hospitalized = calc_hospitalized_qaly(calc_hospitalized(), calc_hale(), hospitalized_co_mo_fa)
     #Calculating QALY lost due to healthcare system collapse.
     
-    qaly_value_lost = int(np.round((qaly_lost_covid + qaly_lost_hospitalized) * qaly_value,0))
+    qaly_value_lost = int(np.round((qaly_lost_covid + lost_hospitalized[0] * healthcare_collapse_factor) * qaly_value,0))
     #Calculating the value of lost QALY due COVID 19 deaths and healthcare system collapse
     
-    print(f"{qaly_value_lost:,}" + " NIS")
+    print(f"{qaly_value_lost:,}" + " NIS, " + str(int(np.round(dead, 0))) + " Covid-19 casualties, " + str(int(np.round(lost_hospitalized[1] * healthcare_collapse_factor))) + " other dead")
 
 if __name__ == '__main__':
     main()
